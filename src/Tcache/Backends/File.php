@@ -1,14 +1,16 @@
 <?php
 /*
- * This file is part of the CacheCache package.
+ * This file is part of the Tcache package.
  *
+ * Based on CacheCache code by
  * (c) 2012 Maxime Bouroumeau-Fuseau
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace CacheCache\Backends;
+namespace Tcache\Backends;
+//use Tcache\Backends\AbstractBackend;
 
 class File extends AbstractBackend
 {
@@ -49,20 +51,23 @@ class File extends AbstractBackend
 
     public function exists($id)
     {
-        return file_exists($this->filename($id));
+        $filename = $this->filename($id);
+        clearstatcache(true, $filename);
+        return file_exists($filename);
     }
 
     public function get($id)
     {
-        if ($this->exists($id)) {
-            $filename = $this->filename($id);
+        $filename = $this->filename($id);;
+        $is = $this->exists($id);
+        if ($is) {
             list($value, $expire) = $this->decode(file_get_contents($filename));
             if ($expire !== null && $expire < time()) {
                 $this->delete($id);
                 return null;
             }
             return $value;
-        }
+        } 
         return null;
     }
 
@@ -86,6 +91,7 @@ class File extends AbstractBackend
 
     public function flushAll()
     {
+        if (!is_dir($this->dir)) return true;
         foreach (new \DirectoryIterator($this->dir) as $file) {
             if (substr($file->getFilename(), 0, 1) === '.' || $file->isDir()) {
                 continue;
@@ -111,7 +117,7 @@ class File extends AbstractBackend
         $filename = $id;
 
         if ($this->subDirs) {
-            $parts = explode(CacheCache\Cache::$namespaceSeparator, $id);
+            $parts = explode(Tcache\Cache::$namespaceSeparator, $id);
             $filename = array_pop($parts);
             $dir .= DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $parts);
             if (!file_exists($dir)) {
@@ -160,5 +166,23 @@ class File extends AbstractBackend
     public function decode($data)
     {
         return unserialize($data);
+    }
+
+    /**
+     * Получаем список всех файлов по заданному условию
+     */
+    public function getAll($expression)
+    {
+        $ret = glob($this->dir.DIRECTORY_SEPARATOR.$expression);
+        return $ret;
+    }
+
+    /**
+     * Bolmer add: get path to cache folder
+     */
+    public function getCachePath()
+    {
+        $retPath = rtrim($this->dir, DIRECTORY_SEPARATOR);        
+        return $retPath.DIRECTORY_SEPARATOR;
     }
 }

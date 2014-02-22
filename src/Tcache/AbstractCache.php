@@ -1,24 +1,26 @@
 <?php
 /*
- * This file is part of the CacheCache package.
+ * This file is part of the Tcache package.
  *
+ * Based on CacheCache code by
  * (c) 2012 Maxime Bouroumeau-Fuseau
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace CacheCache;
+namespace Tcache;
+use Tcache\Backends\AbstractBackend as Backend;
 
 /**
  * Cache frontend
  *
  * Provides facility methods to interact with a backend.
  */
-class Cache implements Backend
+class AbstractCache implements InterfaceCache
 {
     /** @var string */
-    public static $namespaceSeparator = ':';
+    public static $namespaceSeparator = '.';
 
     /** @var string */
     protected $namespace;
@@ -538,5 +540,35 @@ class Cache implements Backend
         }
         call_user_func($callback, $pipe);
         return $pipe->execute();
+    }
+
+    /**
+     * Whether this backend supports tags
+     *
+     * @return bool
+     */
+    function supportsTags()
+    {
+        return false;
+    }
+
+    /**
+     * Deletes all data with tag
+     *
+     * @param string $tag
+     */
+    function flushByTag($tag)
+    {
+        return $this->flushAll();        
+    }
+
+    /**
+     * Deletes all data with tag
+     *
+     * @param array $tags
+     */
+    function flushByTagType($tags)
+    {
+        return $this->flushAll();
     }
 }

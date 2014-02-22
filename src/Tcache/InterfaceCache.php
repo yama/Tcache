@@ -1,19 +1,20 @@
 <?php
 /*
- * This file is part of the CacheCache package.
+ * This file is part of the Tcache package.
  *
+ * Based on CacheCache code by
  * (c) 2012 Maxime Bouroumeau-Fuseau
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace CacheCache;
+namespace Tcache;
 
 /**
  * Backends provide a way to store cached data.
  */
-interface Backend
+interface InterfaceCache
 {
     /**
      * Checks if the $id exists
@@ -83,6 +84,27 @@ interface Backend
      * Deletes all data from the cache
      */
     function flushAll();
+
+    /**
+     * Whether this backend supports tags
+     *
+     * @return bool
+     */
+    function supportsTags();
+
+    /**
+     * Deletes all data with tag
+     *
+     * @param string $tag
+     */
+    function flushByTag($tag);
+
+    /**
+     * Deletes all data with tag
+     *
+     * @param array $tags
+     */
+    function flushByTagType($tags);
 
     /**
      * Whether this backend supports pipelines

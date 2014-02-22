@@ -1,21 +1,21 @@
 <?php
 /*
- * This file is part of the CacheCache package.
+ * This file is part of the Tcache package.
  *
+ * Based on CacheCache code by
  * (c) 2012 Maxime Bouroumeau-Fuseau
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace CacheCache\Backends;
-
-use CacheCache\Backend;
+namespace Tcache\Backends;
+use Tcache\InterfaceCache;
 
 /**
  * Base class for backends
  */
-abstract class AbstractBackend implements Backend
+abstract class AbstractBackend implements InterfaceCache
 {
     /**
      * {@inheritDoc}
@@ -72,5 +72,29 @@ abstract class AbstractBackend implements Backend
     public function createPipeline()
     {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function supportsTags()
+    {
+        return ($this instanceof \Tcache\InterfaceTaggedCache);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function flushByTag($tag)
+    {
+        return $this->flushAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function flushByTagType($tags)
+    {
+        return $this->flushAll();
     }
 }
